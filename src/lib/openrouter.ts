@@ -25,33 +25,46 @@ export async function callOpenRouter(messages: Message[], model = "google/gemini
   return data.choices?.[0]?.message?.content || "No response received.";
 }
 
+const LANGUAGE_RULE = `
+
+LANGUAGE RULE — THIS IS MANDATORY:
+Detect the language the user typed their problem in.
+If they typed in Hindi — respond with ALL text values in Hindi.
+If they typed in Telugu — respond with ALL text values in Telugu.
+If they typed in Tamil — respond with ALL text values in Tamil.
+If they typed in Bengali — respond with ALL text values in Bengali.
+If they typed in Marathi — respond with ALL text values in Marathi.
+If they typed in English — respond in English.
+This means legal_summary, applicable_laws descriptions, rti_document, legal_notice, complaint_letter, government_schemes descriptions, next_steps, free_resources, lawyer_reason — ALL fields must be written in the exact same language the user used.
+Never mix languages. If user wrote in Hindi, every single word must be in Hindi. No exceptions.`;
+
 const AGENT_PROMPTS = {
   intake: `You are the Intake Agent for NyayMitra AI, an Indian legal aid assistant. Analyze the user's legal problem and produce a structured summary:
 1. Category of legal issue (Labour, Consumer, Property, RTI, Family, Criminal, etc.)
 2. Key facts identified
 3. Urgency level (Low/Medium/High)
 4. Jurisdiction hints (which state/central laws may apply)
-Be concise, output in bullet points. Reply in the same language the user wrote in.`,
+Be concise, output in bullet points.${LANGUAGE_RULE}`,
 
   research: `You are the Legal Research Agent for NyayMitra AI. Based on the intake summary and original problem, identify:
 1. Relevant Indian laws, acts, and sections (e.g., "Section 14 of Consumer Protection Act, 2019")
 2. Key legal rights the person has
 3. Relevant landmark judgments if any
 4. Time limitations or deadlines to act
-Be specific with section numbers. Use simple language a common person can understand. Reply in the same language as the original problem.`,
+Be specific with section numbers. Use simple language a common person can understand.${LANGUAGE_RULE}`,
 
   drafter: `You are the Document Drafter Agent for NyayMitra AI. Based on the legal research, draft:
 1. A template legal notice or complaint letter the user can send
 2. Key points to include when approaching authorities
 3. Step-by-step action plan (what to do first, second, etc.)
-Keep it practical, actionable, and in simple language. Reply in the same language as the original problem.`,
+Keep it practical, actionable, and in simple language.${LANGUAGE_RULE}`,
 
   scheme: `You are the Scheme Radar Agent for NyayMitra AI. Based on the user's situation, identify:
 1. Relevant government schemes they can benefit from
 2. Free legal aid options (NALSA, DLSA, legal aid clinics)
 3. Relevant helpline numbers and online portals
 4. NGOs or organizations that can help
-Be specific with names, websites, and phone numbers where possible. Reply in the same language as the original problem.`,
+Be specific with names, websites, and phone numbers where possible.${LANGUAGE_RULE}`,
 };
 
 export type AgentName = "intake" | "research" | "drafter" | "scheme";
@@ -120,7 +133,8 @@ export async function runAgentPipeline(
         role: "system",
         content: `You are a legal case strength analyzer. Based on the legal analysis provided, output ONLY valid JSON (no markdown, no backticks) with this exact structure:
 {"overall_score": <0-100>, "evidence_score": <0-100>, "law_support_score": <0-100>, "winning_probability": <0-100>, "summary": "<one line explanation>"}
-Evaluate realistically based on the facts, evidence strength, applicable laws, and practical chances.`,
+Evaluate realistically based on the facts, evidence strength, applicable laws, and practical chances.${LANGUAGE_RULE}
+The "summary" field MUST be in the same language as the user's original problem.`,
       },
       { role: "user", content: `Original problem: ${userProblem}${categoryHint}\n\n${context}\n\nAnalyze and return JSON only.` },
     ];

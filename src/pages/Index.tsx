@@ -1,6 +1,6 @@
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
-import ApiKeyBanner from "@/components/ApiKeyBanner";
+import Banner from "@/components/Banner";
 import ProblemForm from "@/components/ProblemForm";
 import AgentsPanel from "@/components/AgentsPanel";
 
@@ -17,7 +17,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
-      <ApiKeyBanner />
+      <Banner />
 
       <main className="flex-1 container max-w-6xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -30,8 +30,8 @@ const Index = () => {
         </div>
       </main>
 
-      <footer className="text-center py-4 text-xs text-muted-foreground border-t border-border">
-        Powered by Claude AI via OpenRouter
+      <footer className="text-center py-4 px-4 text-xs bg-secondary text-secondary-foreground">
+        Disclaimer: NyayMitra AI provides general legal information only. Always consult a qualified lawyer for specific legal advice.
       </footer>
     </div>
   );

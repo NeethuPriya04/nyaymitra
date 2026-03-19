@@ -22,7 +22,7 @@ const ProblemForm = ({ onSubmit }: ProblemFormProps) => {
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="text-xl font-bold text-foreground mb-1">What legal problem are you facing today?</h2>
+        <h2 className="text-xl font-bold text-primary mb-1">What legal problem are you facing today?</h2>
         <p className="text-sm text-muted-foreground">
           Describe your situation in any language. Hindi, Telugu, Tamil, English — anything works.
         </p>
@@ -36,10 +36,10 @@ const ProblemForm = ({ onSubmit }: ProblemFormProps) => {
           onChange={(e) => setText(e.target.value.slice(0, maxLen))}
           rows={5}
           placeholder="Example: My employer has not paid my salary for 3 months and is threatening to fire me if I complain to anyone. I have no written contract. What are my rights?"
-          className="w-full rounded-lg bg-muted border border-border p-4 text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-1 focus:ring-ring"
+          className="w-full rounded-2xl bg-background border border-border p-4 text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
         />
         <div className="flex items-center justify-between mt-2">
-          <button className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-muted-foreground hover:text-gold transition-colors">
+          <button className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-muted-foreground hover:text-primary transition-colors">
             <Mic className="w-4 h-4" />
           </button>
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
@@ -58,7 +58,7 @@ const ProblemForm = ({ onSubmit }: ProblemFormProps) => {
           <button
             key={s.text}
             onClick={() => setText(s.text)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs bg-secondary text-secondary-foreground border border-border hover:border-gold/50 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs bg-background text-primary border border-primary/30 hover:border-primary transition-colors"
           >
             <span>{s.emoji}</span>
             {s.text}
@@ -69,7 +69,7 @@ const ProblemForm = ({ onSubmit }: ProblemFormProps) => {
       <Button
         onClick={() => onSubmit(text, category)}
         disabled={!text.trim()}
-        className="w-full py-6 text-base font-semibold bg-primary text-primary-foreground hover:bg-gold-dark transition-colors disabled:opacity-40"
+        className="w-full py-6 text-base font-semibold bg-accent text-accent-foreground hover:bg-accent/90 rounded-2xl btn-shadow transition-all disabled:opacity-40"
       >
         Find My Rights →
       </Button>

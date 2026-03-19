@@ -24,8 +24,8 @@ const CategoryChips = ({ selected, onSelect }: CategoryChipsProps) => {
           onClick={() => onSelect(cat.label)}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm border transition-all ${
             selected === cat.label
-              ? "bg-primary text-primary-foreground border-primary"
-              : "bg-secondary text-secondary-foreground border-border hover:border-gold/50"
+              ? "bg-accent text-accent-foreground border-accent"
+              : "bg-secondary text-secondary-foreground border-border hover:border-primary/30"
           }`}
         >
           <span>{cat.emoji}</span>

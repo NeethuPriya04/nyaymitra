@@ -56,9 +56,22 @@ Be specific with names, websites, and phone numbers where possible. Reply in the
 
 export type AgentName = "intake" | "research" | "drafter" | "scheme";
 
+export interface CaseStrength {
+  overall_score: number;
+  evidence_score: number;
+  law_support_score: number;
+  winning_probability: number;
+  summary: string;
+}
+
 export interface AgentResult {
   agent: AgentName;
   response: string;
+}
+
+export interface PipelineResult {
+  agentResults: AgentResult[];
+  caseStrength: CaseStrength | null;
 }
 
 export async function runAgentPipeline(
@@ -66,7 +79,7 @@ export async function runAgentPipeline(
   category: string | null,
   onAgentStart: (index: number) => void,
   onAgentComplete: (index: number, result: AgentResult) => void,
-): Promise<AgentResult[]> {
+): Promise<PipelineResult> {
   const agents: AgentName[] = ["intake", "research", "drafter", "scheme"];
   const results: AgentResult[] = [];
   const categoryHint = category ? ` [Category: ${category}]` : "";
@@ -82,7 +95,6 @@ export async function runAgentPipeline(
     if (i === 0) {
       messages.push({ role: "user", content: userProblem + categoryHint });
     } else {
-      // Include previous agent outputs as context
       const context = results.map(r => `[${r.agent.toUpperCase()} AGENT OUTPUT]:\n${r.response}`).join("\n\n");
       messages.push({ role: "user", content: `Original problem: ${userProblem}${categoryHint}\n\n${context}\n\nNow do your part.` });
     }
@@ -99,5 +111,27 @@ export async function runAgentPipeline(
     }
   }
 
-  return results;
+  // Case Strength Analysis
+  let caseStrength: CaseStrength | null = null;
+  try {
+    const context = results.map(r => `[${r.agent.toUpperCase()} AGENT OUTPUT]:\n${r.response}`).join("\n\n");
+    const csMessages: Message[] = [
+      {
+        role: "system",
+        content: `You are a legal case strength analyzer. Based on the legal analysis provided, output ONLY valid JSON (no markdown, no backticks) with this exact structure:
+{"overall_score": <0-100>, "evidence_score": <0-100>, "law_support_score": <0-100>, "winning_probability": <0-100>, "summary": "<one line explanation>"}
+Evaluate realistically based on the facts, evidence strength, applicable laws, and practical chances.`,
+      },
+      { role: "user", content: `Original problem: ${userProblem}${categoryHint}\n\n${context}\n\nAnalyze and return JSON only.` },
+    ];
+    const raw = await callOpenRouter(csMessages);
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      caseStrength = JSON.parse(jsonMatch[0]) as CaseStrength;
+    }
+  } catch {
+    // silently fail - case strength is optional
+  }
+
+  return { agentResults: results, caseStrength };
 }

@@ -15,8 +15,7 @@ const ResultsPanel = ({ results }: ResultsPanelProps) => {
   if (results.length === 0) return null;
 
   return (
-    <div className="mt-8 space-y-5">
-      <h2 className="text-xl font-bold text-primary">📋 Your Legal Report</h2>
+    <div className="space-y-5">
       {results.map((r) => {
         const meta = agentMeta[r.agent];
         return (

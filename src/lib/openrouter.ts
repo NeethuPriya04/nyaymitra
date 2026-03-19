@@ -133,7 +133,8 @@ export async function runAgentPipeline(
         role: "system",
         content: `You are a legal case strength analyzer. Based on the legal analysis provided, output ONLY valid JSON (no markdown, no backticks) with this exact structure:
 {"overall_score": <0-100>, "evidence_score": <0-100>, "law_support_score": <0-100>, "winning_probability": <0-100>, "summary": "<one line explanation>"}
-Evaluate realistically based on the facts, evidence strength, applicable laws, and practical chances.`,
+Evaluate realistically based on the facts, evidence strength, applicable laws, and practical chances.${LANGUAGE_RULE}
+The "summary" field MUST be in the same language as the user's original problem.`,
       },
       { role: "user", content: `Original problem: ${userProblem}${categoryHint}\n\n${context}\n\nAnalyze and return JSON only.` },
     ];

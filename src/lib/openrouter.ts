@@ -27,34 +27,26 @@ export async function callOpenRouter(messages: Message[], model = "google/gemini
 
 const LANGUAGE_RULE = `
 
-CRITICAL LANGUAGE RULE — STRICTLY FOLLOW THIS:
+LANGUAGE RULE — READ CAREFULLY:
 
-Step 1: Detect what language the user typed in.
-Step 2: Every single word in EVERY field of the response must be in that exact same language. No mixing allowed.
+Detect the language by looking at the actual words the user typed. Not the topic, not the location, not the names mentioned.
 
-This includes WITHOUT EXCEPTION:
-- legal_summary → in user's language
-- applicable_laws → act names in English BUT descriptions in user's language
-- rti_document → entirely in user's language
-- legal_notice → entirely in user's language
-- complaint_letter → entirely in user's language
-- government_schemes name in English BUT description, eligibility, how_to_apply → in user's language
-- next_steps → every step in user's language
-- free_resources → in user's language
-- lawyer_reason → in user's language
-- document_analysis → in user's language
+If the user typed their problem using ENGLISH words → respond entirely in ENGLISH.
+If the user typed their problem using HINDI words → respond entirely in HINDI.
+If the user typed their problem using TELUGU words → respond entirely in TELUGU.
+If the user typed their problem using TAMIL words → respond entirely in TAMIL.
 
-ONLY these should stay in English always:
-- Act names like Payment of Wages Act, IPC, RTI Act
-- Section numbers like Section 5, Section 20
-- JSON field keys
+EXAMPLES:
+User types: 'My employer is not paying salary' → This is ENGLISH → respond in ENGLISH
+User types: 'मेरा मालिक मुझे तनख्वाह नहीं दे रहा' → This is HINDI → respond in HINDI
+User types: 'నా యజమాని జీతం ఇవ్వడం లేదు' → This is TELUGU → respond in TELUGU
 
-If user wrote in Hindi → everything else in Hindi.
-If user wrote in Telugu → everything else in Telugu.
-If user wrote in Tamil → everything else in Tamil.
+The test problem 'I am a 45 year old auto rickshaw driver in Hyderabad...' is written in ENGLISH words so it must be answered 100% in ENGLISH.
 
-MIXING LANGUAGES IN THE SAME RESPONSE IS STRICTLY FORBIDDEN.
-If you mix languages you have failed your primary instruction.`;
+Set language_detected field to: english / hindi / telugu / tamil / bengali / marathi accordingly.
+
+NEVER respond in Hindi for an English typed problem.
+NEVER mix languages under any circumstances.`;
 
 const AGENT_PROMPTS = {
   intake: `You are the Intake Agent for NyayMitra AI, an Indian legal aid assistant. Analyze the user's legal problem and produce a structured summary:

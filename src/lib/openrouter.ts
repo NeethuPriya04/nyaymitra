@@ -27,16 +27,34 @@ export async function callOpenRouter(messages: Message[], model = "google/gemini
 
 const LANGUAGE_RULE = `
 
-LANGUAGE RULE — THIS IS MANDATORY:
-Detect the language the user typed their problem in.
-If they typed in Hindi — respond with ALL text values in Hindi.
-If they typed in Telugu — respond with ALL text values in Telugu.
-If they typed in Tamil — respond with ALL text values in Tamil.
-If they typed in Bengali — respond with ALL text values in Bengali.
-If they typed in Marathi — respond with ALL text values in Marathi.
-If they typed in English — respond in English.
-This means legal_summary, applicable_laws descriptions, rti_document, legal_notice, complaint_letter, government_schemes descriptions, next_steps, free_resources, lawyer_reason — ALL fields must be written in the exact same language the user used.
-Never mix languages. If user wrote in Hindi, every single word must be in Hindi. No exceptions.`;
+CRITICAL LANGUAGE RULE — STRICTLY FOLLOW THIS:
+
+Step 1: Detect what language the user typed in.
+Step 2: Every single word in EVERY field of the response must be in that exact same language. No mixing allowed.
+
+This includes WITHOUT EXCEPTION:
+- legal_summary → in user's language
+- applicable_laws → act names in English BUT descriptions in user's language
+- rti_document → entirely in user's language
+- legal_notice → entirely in user's language
+- complaint_letter → entirely in user's language
+- government_schemes name in English BUT description, eligibility, how_to_apply → in user's language
+- next_steps → every step in user's language
+- free_resources → in user's language
+- lawyer_reason → in user's language
+- document_analysis → in user's language
+
+ONLY these should stay in English always:
+- Act names like Payment of Wages Act, IPC, RTI Act
+- Section numbers like Section 5, Section 20
+- JSON field keys
+
+If user wrote in Hindi → everything else in Hindi.
+If user wrote in Telugu → everything else in Telugu.
+If user wrote in Tamil → everything else in Tamil.
+
+MIXING LANGUAGES IN THE SAME RESPONSE IS STRICTLY FORBIDDEN.
+If you mix languages you have failed your primary instruction.`;
 
 const AGENT_PROMPTS = {
   intake: `You are the Intake Agent for NyayMitra AI, an Indian legal aid assistant. Analyze the user's legal problem and produce a structured summary:

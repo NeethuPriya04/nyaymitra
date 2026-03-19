@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Mic, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import CategoryChips from "./CategoryChips";
 
 const quickSuggestions = [
@@ -10,6 +11,14 @@ const quickSuggestions = [
   { emoji: "🛒", text: "Received damaged product, company refusing refund" },
 ];
 
+const getLangTag = (text: string): string => {
+  if (/[\u0C00-\u0C7F]/.test(text)) return "te-IN";
+  if (/[\u0B80-\u0BFF]/.test(text)) return "ta-IN";
+  if (/[\u0980-\u09FF]/.test(text)) return "bn-IN";
+  if (/[\u0900-\u097F]/.test(text)) return "hi-IN";
+  return "en-IN";
+};
+
 interface ProblemFormProps {
   onSubmit: (text: string, category: string | null) => void;
 }
@@ -17,7 +26,80 @@ interface ProblemFormProps {
 const ProblemForm = ({ onSubmit }: ProblemFormProps) => {
   const [text, setText] = useState("");
   const [category, setCategory] = useState<string | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const recognitionRef = useRef<any>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const { toast } = useToast();
   const maxLen = 2000;
+
+  const stopRecording = () => {
+    recognitionRef.current?.stop();
+    mediaStreamRef.current?.getTracks().forEach((t) => t.stop());
+    mediaStreamRef.current = null;
+    recognitionRef.current = null;
+    setIsRecording(false);
+  };
+
+  const handleMicClick = async () => {
+    if (isRecording) {
+      stopRecording();
+      return;
+    }
+
+    const SpeechRecognitionAPI =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognitionAPI) {
+      toast({ title: "Please use Chrome browser for voice input", variant: "destructive" });
+      return;
+    }
+
+    try {
+      mediaStreamRef.current = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true },
+      });
+    } catch {
+      toast({ title: "Microphone access denied. Check browser permissions.", variant: "destructive" });
+      return;
+    }
+
+    const recognition = new SpeechRecognitionAPI();
+    recognition.lang = getLangTag(text);
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    const baseText = text;
+
+    recognition.onresult = (event: any) => {
+      let final = "";
+      let interim = "";
+      for (let i = 0; i < event.results.length; i++) {
+        const t = event.results[i][0].transcript;
+        if (event.results[i].isFinal) final += t;
+        else interim += t;
+      }
+      setText((baseText + " " + final + interim).trim().slice(0, maxLen));
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error("Speech error:", event.error);
+      if (event.error !== "no-speech") {
+        toast({ title: `Speech error: ${event.error}`, variant: "destructive" });
+      }
+      stopRecording();
+    };
+
+    recognition.onend = () => {
+      stopRecording();
+    };
+
+    recognition.start();
+    recognitionRef.current = recognition;
+    setIsRecording(true);
+  };
+
+  useEffect(() => {
+    return () => { stopRecording(); };
+  }, []);
 
   return (
     <div className="space-y-5">
@@ -39,8 +121,21 @@ const ProblemForm = ({ onSubmit }: ProblemFormProps) => {
           className="w-full rounded-2xl bg-background border border-border p-4 text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
         />
         <div className="flex items-center justify-between mt-2">
-          <button className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-muted-foreground hover:text-primary transition-colors">
+          <button
+            onClick={handleMicClick}
+            className={`relative flex items-center gap-2 rounded-full px-3 py-1.5 transition-all ${
+              isRecording
+                ? "bg-red-500 text-white animate-pulse shadow-lg shadow-red-500/40"
+                : "bg-secondary text-muted-foreground hover:text-primary"
+            }`}
+          >
             <Mic className="w-4 h-4" />
+            {isRecording && (
+              <>
+                <span className="text-xs font-medium">Recording... tap to stop</span>
+                <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-red-400 animate-ping" />
+              </>
+            )}
           </button>
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span>{text.length} / {maxLen}</span>

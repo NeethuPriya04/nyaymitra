@@ -1,15 +1,16 @@
-import { useLocation } from "react-router-dom";
-import type { AgentResult } from "@/lib/openrouter";
+import { useLocation, useNavigate } from "react-router-dom";
+import type { AgentResult, CaseStrength } from "@/lib/openrouter";
 import Header from "@/components/Header";
 import ResultsPanel from "@/components/ResultsPanel";
+import CaseStrengthCard from "@/components/CaseStrengthCard";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
 const Results = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const results = (location.state?.results as AgentResult[]) || [];
+  const caseStrength = (location.state?.caseStrength as CaseStrength) || null;
 
   if (results.length === 0) {
     return (
@@ -25,6 +26,10 @@ const Results = () => {
     );
   }
 
+  // Split results: first card, then case strength, then rest
+  const firstResult = results[0];
+  const restResults = results.slice(1);
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
@@ -32,7 +37,12 @@ const Results = () => {
         <Button onClick={() => navigate("/")} variant="outline" className="mb-6">
           <ArrowLeft className="w-4 h-4 mr-2" /> Ask Another Question
         </Button>
-        <ResultsPanel results={results} />
+        <div className="mt-8 space-y-5">
+          <h2 className="text-xl font-bold text-primary">📋 Your Legal Report</h2>
+          <ResultsPanel results={[firstResult]} />
+          {caseStrength && <CaseStrengthCard data={caseStrength} />}
+          <ResultsPanel results={restResults} />
+        </div>
       </main>
       <footer className="text-center py-4 px-4 text-xs bg-secondary text-secondary-foreground">
         Disclaimer: NyayMitra AI provides general legal information only. Always consult a qualified lawyer for specific legal advice.

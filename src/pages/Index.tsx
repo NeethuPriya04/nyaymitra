@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 import Banner from "@/components/Banner";
 import ProblemForm from "@/components/ProblemForm";
 import AgentsPanel from "@/components/AgentsPanel";
-import { runAgentPipeline, type AgentResult } from "@/lib/openrouter";
+import { runAgentPipeline } from "@/lib/openrouter";
 
 const Index = () => {
   const { toast } = useToast();
@@ -26,20 +26,17 @@ const Index = () => {
       description: "Our AI agents are analyzing your situation.",
     });
 
-    const results: AgentResult[] = [];
-
-    await runAgentPipeline(
+    const pipelineResult = await runAgentPipeline(
       text,
       category,
       (index) => setActiveAgent(index),
-      (index, result) => {
+      (index) => {
         setCompletedAgents((prev) => [...prev, index]);
-        results.push(result);
       },
     );
 
     setIsRunning(false);
-    navigate("/results", { state: { results } });
+    navigate("/results", { state: { results: pipelineResult.agentResults, caseStrength: pipelineResult.caseStrength } });
   }, [toast, navigate]);
 
   return (

@@ -36,7 +36,14 @@ const Index = () => {
     );
 
     setIsRunning(false);
-    navigate("/results", { state: { results: pipelineResult.agentResults, caseStrength: pipelineResult.caseStrength } });
+    navigate("/results", {
+      state: {
+        results: pipelineResult.agentResults,
+        caseStrength: pipelineResult.caseStrength,
+        userProblem: text,
+        category,
+      },
+    });
   }, [toast, navigate]);
 
   return (

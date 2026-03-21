@@ -352,7 +352,7 @@ const CaseSummaryReport = ({ results, caseStrength, userProblem }: CaseSummaryRe
     addFooter();
 
     // SAVE
-    doc.save("NyayBandhu-Legal-Report-NB" + reportId + ".pdf");
+    doc.save("NyayMitra-Legal-Report-NM" + reportId + ".pdf");
   };
 
   return (

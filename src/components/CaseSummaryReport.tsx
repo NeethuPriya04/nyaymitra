@@ -124,7 +124,7 @@ const CaseSummaryReport = ({ results, caseStrength, userProblem }: CaseSummaryRe
     doc.setFontSize(20);
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
-    doc.text("Nyay Bandhu - Legal Rights Report", margin, 15);
+    doc.text("NyayMitra AI - Legal Rights Report", margin, 15);
 
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");

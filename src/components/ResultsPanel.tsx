@@ -1,6 +1,8 @@
 import type { AgentResult } from "@/lib/openrouter";
 import ReactMarkdown from "react-markdown";
-import React from "react";
+import React, { useState } from "react";
+import { Copy, Check } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 const agentMeta: Record<string, { emoji: string; title: string; color: string }> = {
   intake: { emoji: "🧠", title: "Your Rights at a Glance", color: "border-l-purple-500" },

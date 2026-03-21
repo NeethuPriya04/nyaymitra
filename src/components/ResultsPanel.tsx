@@ -25,10 +25,13 @@ const parseBold = (text: string): React.ReactNode[] => {
 const sanitizeResponse = (text: string): string => {
   let cleaned = text;
 
-  // Remove "language_detected: english" or similar meta lines
-  cleaned = cleaned.replace(/^\s*\**\s*language[_ ]detected\s*[:=]\s*\w+\s*\**\s*$/gim, '');
+  // Remove "language_detected: english" or similar meta lines (all variations)
+  cleaned = cleaned.replace(/^\s*\**\s*language[_ ]?detected\s*[:=\-—]\s*\w+\s*\**\s*$/gim, '');
+  cleaned = cleaned.replace(/\**\s*language[_ ]?detected\s*[:=\-—]\s*\w+\s*\**/gi, '');
+  cleaned = cleaned.replace(/^\s*\**\s*detected[_ ]?language\s*[:=\-—]\s*\w+\s*\**\s*$/gim, '');
+  cleaned = cleaned.replace(/language[_ ]?detected/gi, '');
   // Remove intro fluff lines
-  cleaned = cleaned.replace(/^\s*(Here'?s? (what I found|is|are)|Based on your (situation|problem|query)).*$/gim, '');
+  cleaned = cleaned.replace(/^\s*(Here'?s? (what I found|is|are|a |the )|Based on your (situation|problem|query)|I('ve| have) (analyzed|reviewed|assessed)).*$/gim, '');
 
   // Remove JSON code fences
   cleaned = cleaned.replace(/^```(?:json|javascript|js)?\s*\n?/gm, '');

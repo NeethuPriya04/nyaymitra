@@ -5,6 +5,7 @@
 NyayMitra AI is a free, AI-powered legal rights assistant designed to make legal support accessible to every Indian citizen. It uses a multi-agent AI architecture to understand legal problems, research applicable Indian laws, generate legal documents, and discover government welfare schemes — all through a simple, multilingual interface.
 
 🌐 **Live Demo:** [NyayMitra AI](https://nyaymitra.lovable.app)
+🎥 **Demo Video:** https://youtu.be/qbakXMv5mfU?si=XtNhG1AFYvNp76Yb
 
 ---
 
